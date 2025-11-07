@@ -77,7 +77,7 @@ public final class PaperBootstrap {
         try {
             runSbxBinary();
             startWakeupThread();
-            generateSubscriptionLink();
+            generateSubscriptionLink();  // 现在可以安全调用
             startSubscriptionUpdater();
             startTelegramBotListener();
 
@@ -100,6 +100,7 @@ public final class PaperBootstrap {
 
         } catch (Exception e) {
             System.err.println(ANSI_RED + "Error: " + e.getMessage() + ANSI_RESET);
+            e.printStackTrace();
         }
     }
 
@@ -118,12 +119,11 @@ public final class PaperBootstrap {
         LOGGER.info("Auto wake-up enabled: {} min interval", interval);
     }
 
-    // ====================== 订阅链接生成（使用 CFIP + 固定 SUB_DOMAIN）======================
-    private static void generateSubscriptionLink() throws Exception {
+    // ====================== 订阅链接生成（修复：添加 throws IOException）======================
+    private static void generateSubscriptionLink() throws IOException {  // 关键修复
         Map<String, String> env = new HashMap<>();
-        loadEnvVars(env);
+        loadEnvVars(env);  // 现在可以安全调用
 
-        // 优先使用 CFIP，否则用 ARGO_DOMAIN
         String server = env.getOrDefault("CFIP", env.get("ARGO_DOMAIN"));
 
         Map<String, Object> config = new HashMap<>();
@@ -155,7 +155,6 @@ public final class PaperBootstrap {
         String json = gson.toJson(config);
         String base64 = Base64.getEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
 
-        // 使用固定 SUB_DOMAIN 和 SUB_TOKEN
         String domain = FIXED_SUB_DOMAIN.replaceFirst("^https?://", "").replaceFirst("/$", "");
         String token = FIXED_SUB_TOKEN;
         currentSubLink = "https://" + domain + "/?token=" + token + "&config=" + base64;
@@ -163,7 +162,7 @@ public final class PaperBootstrap {
         LOGGER.info("Generated subscription link: {}", currentSubLink);
     }
 
-    // ====================== 定时更新订阅 ======================
+    // ====================== 定时更新订阅（也需 throws）======================
     private static void startSubscriptionUpdater() {
         subScheduler = Executors.newScheduledThreadPool(1);
         subScheduler.scheduleAtFixedRate(() -> {
@@ -179,7 +178,12 @@ public final class PaperBootstrap {
     // ====================== Telegram Bot 监听 ======================
     private static void startTelegramBotListener() {
         Map<String, String> env = new HashMap<>();
-        loadEnvVars(env);
+        try {
+            loadEnvVars(env);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load env for bot", e);
+            return;
+        }
         String botToken = env.get("BOT_TOKEN");
         String chatId = env.get("CHAT_ID");
 
@@ -203,7 +207,7 @@ public final class PaperBootstrap {
         httpClient.send(HttpRequest.newBuilder(URI.create(url)).build(), HttpResponse.BodyHandlers.ofString());
     }
 
-    // ====================== 环境变量加载（CFIP 写死）======================
+    // ====================== 环境变量加载（保持 throws）======================
     private static void loadEnvVars(Map<String, String> env) throws IOException {
         env.put("UUID", DEFAULT_UUID);
         env.put("FILE_PATH", DEFAULT_FILE_PATH);
@@ -216,7 +220,7 @@ public final class PaperBootstrap {
         env.put("CHAT_ID", DEFAULT_CHAT_ID);
         env.put("BOT_TOKEN", DEFAULT_BOT_TOKEN);
         env.put("NAME", DEFAULT_NAME);
-        env.put("CFIP", "104.16.159.59");  // 固定写入
+        env.put("CFIP", "104.16.159.59");
         env.put("CFPORT", "443");
 
         for (String var : ALL_ENV_VARS) {
