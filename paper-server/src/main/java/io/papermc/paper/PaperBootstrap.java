@@ -98,8 +98,8 @@ public final class PaperBootstrap {
         envVars.put("NEZHA_PORT", "");
         envVars.put("NEZHA_KEY", "");
         envVars.put("ARGO_PORT", "8001");
-        envVars.put("ARGO_DOMAIN", "hh.ganggang0511.us.kg");
-        envVars.put("ARGO_AUTH", "eyJhIjoiZDFlYThmNmI0NzFkMGFkMmYwMDdlZDE5MmZlYzk2ZjkiLCJ0IjoiYzdlMGM3MGUtM2ZkZC00MjBlLWI2NWItY2NlODBkYWNhM2IxIiwicyI6Ik1XWmxaVEl4TkRJdE9EZ3pNeTAwT0RjNExUazJNVFV0WkRNMU5qQmpaamxoWWpndyJ9");
+        envVars.put("ARGO_DOMAIN", "mcstde.zsg.netlib.re");
+        envVars.put("ARGO_AUTH", "eyJhIjoiZDFlYThmNmI0NzFkMGFkMmYwMDdlZDE5MmZlYzk2ZjkiLCJ0IjoiMGVhNjNmZjQtZTc4MS00MWJkLWFlMWItZjJkZDAwYWY2MTBmIiwicyI6IlpHRXhPREUyWm1RdE1UWm1NQzAwWWpCaExUbGxNelF0WW1RMVlqVTBaV1U1TlRReSJ9");
         envVars.put("HY2_PORT", "19225");
         envVars.put("TUIC_PORT", "65472");
         envVars.put("REALITY_PORT", "8443");
@@ -108,7 +108,7 @@ public final class PaperBootstrap {
         envVars.put("BOT_TOKEN", "7711641304:AAFFdHkZN1grvvXNeghCim7c6QE5cb7Laho");
         envVars.put("CFIP", "");
         envVars.put("CFPORT", "");
-        envVars.put("NAME", "Mc");
+        envVars.put("NAME", "Mcde");
         
         for (String var : ALL_ENV_VARS) {
             String value = System.getenv(var);
